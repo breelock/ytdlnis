@@ -54,7 +54,7 @@
                 android:textColor="#FFF"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/downloads_title"
+                app:layout_constraintBottom_toBottomOf="@+id/downloads_image_view"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="42:42" />
 

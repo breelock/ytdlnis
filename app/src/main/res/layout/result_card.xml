@@ -1,158 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
+    android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-    <RelativeLayout
-        android:layout_width="0dp"
+    <RelativeLayout android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="H,16:9"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/result_card_view"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:cardCornerRadius="20dp"
-            app:cardElevation="5dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
-            app:strokeColor="?attr/colorPrimary"
-            app:checkedIconTint="?attr/colorPrimary"
+            app:cardElevation="10dp"
             app:cardMaxElevation="12dp"
+            app:cardBackgroundColor="@color/grey"
             app:cardPreventCornerOverlap="true"
-            android:checkable="true"
-            app:strokeWidth="0dp"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            >
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/result_image_view"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/download_progress"
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginLeft="10dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp"
+                android:paddingLeft="20dp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:background="@color/light_grey"
+                android:textStyle="bold"
+                android:shadowRadius="2"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowColor="@color/black" />
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="10dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="10dp"
+                android:background="@color/light_grey"
+                android:gravity="bottom"
+                android:paddingTop="10dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp"
+                android:paddingLeft="20dp"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:shadowRadius="1.5"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowColor="@color/black" />
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/light_grey"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp"
+                android:shadowColor="@color/black"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowRadius="2"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="bottom"
-                android:indeterminate="true"
-                android:visibility="gone"
-                android:alpha="0.7"
-                android:scaleY="100" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:dividerPadding="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toTopOf="@+id/download_music"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/result_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="2"
-                        android:paddingStart="10dp"
-                        android:paddingTop="10dp"
-                        android:paddingEnd="10dp"
-                        android:scrollbars="none"
-                        android:shadowColor="@color/black"
-                        android:shadowDx="1"
-                        android:shadowDy="1"
-                        android:shadowRadius="1"
-                        android:textColor="#FFF"
-                        android:textSize="17sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/author"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:gravity="bottom"
-                        android:maxLines="1"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:scrollbars="none"
-                        android:shadowColor="@color/black"
-                        android:shadowDx="1"
-                        android:shadowDy="1"
-                        android:shadowRadius="1"
-                        android:textColor="#FFF"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:gravity="bottom"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingBottom="20dp"
-                    android:shadowColor="@color/black"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="1"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
+                android:gravity="bottom|right"
+                android:orientation="horizontal"
+                android:paddingBottom="16dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
 
                 <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
                     android:id="@+id/download_music"
-                    style="@style/Widget.Material3.ExtendedFloatingActionButton.Icon.Secondary"
-                    android:layout_width="55dp"
-                    app:elevation="0dp"
-                    android:elevation="0dp"
-                    app:borderWidth="0dp"
-                    android:outlineProvider="none"
-                    android:contentDescription="@string/audio"
-                    android:layout_height="55dp"
-                    android:layout_marginVertical="10dp"
-                    android:layout_marginHorizontal="5dp"
-                    app:icon="@drawable/ic_music"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/download_video" />
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="@color/light_grey"
+                    android:layout_marginLeft="10dp"
+                    />
 
                 <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
                     android:id="@+id/download_video"
-                    style="@style/Widget.Material3.ExtendedFloatingActionButton.Icon.Secondary"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:layout_margin="10dp"
-                    app:elevation="0dp"
-                    android:elevation="0dp"
-                    android:contentDescription="@string/video"
-                    app:borderWidth="0dp"
-                    android:outlineProvider="none"
-                    app:icon="@drawable/ic_video"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="@color/light_grey"
+                    android:layout_marginLeft="10dp"
+                    />
 
+            </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
