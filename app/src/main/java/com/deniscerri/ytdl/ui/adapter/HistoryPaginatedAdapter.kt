@@ -117,7 +117,6 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
         datetime.text = SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy - HHmm"), Locale.getDefault()).format(item.time * 1000L)
 
         // BUTTON ----------------------------------
-        val btn = card.findViewById<FloatingActionButton>(R.id.downloads_download_button_type)
         var filesPresent = true
 
         //IS IN THE FILE SYSTEM?
@@ -129,24 +128,10 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
                 }
             })
             thumbnail.alpha = 0.7f
-            btn.backgroundTintList = MaterialColors.getColorStateList(activity, R.attr.colorSurface, ContextCompat.getColorStateList(activity, android.R.color.transparent)!!)
         }else{
             thumbnail.alpha = 1f
             thumbnail.colorFilter = null
-            btn.backgroundTintList = MaterialColors.getColorStateList(activity, R.attr.colorPrimaryContainer, ContextCompat.getColorStateList(activity, android.R.color.transparent)!!)
         }
-
-        if (item.type == DownloadViewModel.Type.audio) {
-            if (filesPresent) btn.setImageResource(R.drawable.ic_music_downloaded) else {
-                btn.setImageResource(R.drawable.ic_music)
-            }
-        } else if (item.type == DownloadViewModel.Type.video) {
-            if (filesPresent) btn.setImageResource(R.drawable.ic_video_downloaded) else btn.setImageResource(R.drawable.ic_video)
-        }else{
-            if (filesPresent) btn.setImageResource(R.drawable.ic_terminal) else btn.setImageResource(R.drawable.baseline_code_off_24)
-        }
-        if (btn.hasOnClickListeners()) btn.setOnClickListener(null)
-        btn.isClickable = filesPresent
 
         if ((checkedItems.contains(item.id) && !inverted) || (!checkedItems.contains(item.id) && inverted)) {
             card.isChecked = true
@@ -166,10 +151,6 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
             } else {
                 onItemClickListener.onCardClick(item.id, finalFilePresent)
             }
-        }
-
-        btn.setOnClickListener {
-            onItemClickListener.onButtonClick(item.id, finalFilePresent)
         }
     }
 
