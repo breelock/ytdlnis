@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Outline
 import android.graphics.Paint
@@ -16,8 +17,10 @@ import android.graphics.drawable.shapes.OvalShape
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
+import android.os.Environment
 import android.text.Spanned
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -53,14 +56,21 @@ import com.neoutils.highlight.view.extension.toSpannedString
 import com.neoutils.highlight.view.text.HighlightTextWatcher
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.BlurTransformation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.HttpCookie
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.Calendar
 import java.util.Locale
 import java.util.regex.Pattern
@@ -310,6 +320,104 @@ object Extensions {
 
             } else {
                 Picasso.get().load(R.color.black).into(this)
+            }
+        }
+    }
+
+    fun ImageView.loadLocalThumbnail(hideThumb: Boolean, videoId: String, imgUrl: String){
+        if(!hideThumb && videoId.isNotEmpty()){
+
+            val thumbnailsFolder = FileUtil.getCachePath(context) + "/thumbnails"
+            val thumbnailPath = "$thumbnailsFolder/$videoId.jpg"
+
+            if (!File(thumbnailsFolder).exists())
+                File(thumbnailsFolder).mkdirs()
+
+            if (File(thumbnailPath).exists()) {
+                Picasso.get()
+                    .load(File(thumbnailPath))
+                    .resize(1280, 0)
+                    .onlyScaleDown()
+                    .into(this)
+            }
+            else if (imgUrl.isNotEmpty()) {
+                isImageUrlAccessible(imgUrl) { canDownload ->
+                    if (canDownload) {
+                        downloadImage(imgUrl, File(thumbnailPath))  { success, msg ->
+                            if (success) {
+                                Picasso.get()
+                                    .load(File(thumbnailPath))
+                                    .resize(1280, 0)
+                                    .onlyScaleDown()
+                                    .into(this)
+                            } else {
+                                Log.e("loadLocalThumbnail", msg)
+                                Picasso.get().load(R.color.black).into(this)
+                            }
+                        }
+                    } else {
+                        Picasso.get().load(R.color.black).into(this)
+                    }
+                }
+            } else {
+                Picasso.get().load(R.color.black).into(this)
+            }
+        }
+    }
+
+    private fun isImageUrlAccessible(urlStr: String, callback: (Boolean) -> Unit) {
+        Thread {
+            try {
+                val url = URL(urlStr)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "HEAD"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                val responseCode = connection.responseCode
+                callback(responseCode in 200..299)
+            } catch (e: Exception) {
+                callback(false)
+            }
+        }.start()
+    }
+
+    private fun downloadImage(imageURL: String, fileToSave: File,
+        onResult: (success: Boolean, descriprion: String) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = URL(imageURL)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                connection.requestMethod = "GET"
+                connection.doInput = true
+                connection.connect()
+
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                    withContext(Dispatchers.Main) {
+                        onResult(false, "Status code: " + connection.responseCode.toString())
+                    }
+                    return@launch
+                }
+
+                val inputStream: InputStream = connection.inputStream
+                val bitmap: Bitmap = BitmapFactory.decodeStream(inputStream)
+
+                val outputStream = FileOutputStream(fileToSave)
+
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+                inputStream.close()
+
+                withContext(Dispatchers.Main) {
+                    onResult(true, "")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onResult(false, "Status code: " + e.message)
+                }
             }
         }
     }

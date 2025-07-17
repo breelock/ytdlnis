@@ -119,28 +119,9 @@
                         android:textSize="11sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/downloads_info_time"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
 
-
-                    <TextView
-                        android:id="@+id/downloads_info_time"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:gravity="bottom"
-                        android:maxLines="1"
-                        android:padding="10dp"
-                        android:scrollbars="none"
-                        android:shadowColor="@color/black"
-                        android:shadowDx="4"
-                        android:shadowDy="4"
-                        android:shadowRadius="10"
-                        android:textColor="#FFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

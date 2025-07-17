@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.SharedPreferences
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.deniscerri.ytdl.R
 import com.deniscerri.ytdl.database.models.HistoryItem
 import com.deniscerri.ytdl.database.viewmodel.DownloadViewModel
+import com.deniscerri.ytdl.util.Extensions.loadLocalThumbnail
 import com.deniscerri.ytdl.util.Extensions.loadThumbnail
 import com.deniscerri.ytdl.util.Extensions.popup
 import com.google.android.material.card.MaterialCardView
@@ -30,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.net.toUri
 
 
 class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity: Activity) : PagingDataAdapter<HistoryItem, HistoryPaginatedAdapter.ViewHolder>(
@@ -88,13 +91,12 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
         card.tag = item.id.toString()
         card.popup()
 
-
         val uiHandler = Handler(Looper.getMainLooper())
         val thumbnail = card.findViewById<ImageView>(R.id.downloads_image_view)
 
         // THUMBNAIL ----------------------------------
         val hideThumb = sharedPreferences.getStringSet("hide_thumbnails", emptySet())!!.contains("downloads")
-        uiHandler.post { thumbnail.loadThumbnail(hideThumb, item!!.thumb) }
+        uiHandler.post { thumbnail.loadLocalThumbnail(hideThumb, extractYoutubeVideoId(item.url), item.thumb) }
 
         // TITLE  ----------------------------------
         val itemTitle = card.findViewById<TextView>(R.id.downloads_title)
@@ -113,8 +115,8 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
 
 
         // TIME DOWNLOADED  ----------------------------------
-        val datetime = card.findViewById<TextView>(R.id.downloads_info_time)
-        datetime.text = SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy - HHmm"), Locale.getDefault()).format(item.time * 1000L)
+        // val datetime = card.findViewById<TextView>(R.id.downloads_info_time)
+        // datetime.text = SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy - HHmm"), Locale.getDefault()).format(item.time * 1000L)
 
         // BUTTON ----------------------------------
         var filesPresent = true
@@ -153,6 +155,29 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
             }
         }
     }
+
+    private fun extractYoutubeVideoId(url: String): String {
+        val patterns = listOf(
+            "youtube\\.com/watch\\?v=([a-zA-Z0-9_-]{11})",
+            "youtu\\.be/([a-zA-Z0-9_-]{11})",
+            "youtube\\.com/embed/([a-zA-Z0-9_-]{11})"
+        )
+
+        for (pattern in patterns) {
+            val regex = Regex(pattern)
+            val match = regex.find(url)
+            if (match != null && match.groupValues.size > 1) {
+                return match.groupValues[1]
+            }
+        }
+
+        val uri = url.toUri()
+        val v = uri.getQueryParameter("v")
+        if (v != null && v.length == 11) return v
+
+        return ""
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun clearCheckedItems() {
