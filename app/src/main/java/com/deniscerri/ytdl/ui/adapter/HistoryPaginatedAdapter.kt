@@ -33,6 +33,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.net.toUri
+import com.google.android.material.button.MaterialButton
 
 
 class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity: Activity) : PagingDataAdapter<HistoryItem, HistoryPaginatedAdapter.ViewHolder>(
@@ -120,6 +121,7 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
 
         // BUTTON ----------------------------------
         var filesPresent = true
+        val btn = card.findViewById<MaterialButton>(R.id.more_btn)
 
         //IS IN THE FILE SYSTEM?
         if (item.downloadPath.all { !File(it).exists() && it.isNotBlank()}) {
@@ -130,10 +132,12 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
                 }
             })
             thumbnail.alpha = 0.7f
+            btn.backgroundTintList = MaterialColors.getColorStateList(activity, R.attr.colorSurface, ContextCompat.getColorStateList(activity, android.R.color.transparent)!!)
         }else{
             thumbnail.alpha = 1f
             thumbnail.colorFilter = null
         }
+        if (btn.hasOnClickListeners()) btn.setOnClickListener(null)
 
         if ((checkedItems.contains(item.id) && !inverted) || (!checkedItems.contains(item.id) && inverted)) {
             card.isChecked = true
@@ -153,6 +157,10 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
             } else {
                 onItemClickListener.onCardClick(item.id, finalFilePresent)
             }
+        }
+
+        btn.setOnClickListener {
+            onItemClickListener.onButtonClick(item.id, finalFilePresent)
         }
     }
 

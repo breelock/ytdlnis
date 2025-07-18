@@ -179,7 +179,7 @@ object Extensions {
 
     fun Dialog.setFullScreen(
         @Px cornerRadius: Int = 0,
-    skipCollapsed: Boolean = true
+        skipCollapsed: Boolean = true
     ) {
         check(this is BottomSheetDialog) {
             "Dialog must be a BottomSheetBottomSheetDialog."
@@ -351,8 +351,11 @@ object Extensions {
                                     .onlyScaleDown()
                                     .into(this)
                             } else {
-                                Log.e("loadLocalThumbnail", msg)
-                                Picasso.get().load(R.color.black).into(this)
+                                Picasso.get()
+                                    .load(File(imgUrl))
+                                    .resize(1280, 0)
+                                    .onlyScaleDown()
+                                    .into(this)
                             }
                         }
                     } else {
@@ -382,7 +385,7 @@ object Extensions {
     }
 
     private fun downloadImage(imageURL: String, fileToSave: File,
-        onResult: (success: Boolean, descriprion: String) -> Unit
+                              onResult: (success: Boolean, descriprion: String) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -551,7 +554,7 @@ object Extensions {
         // Get the Set-Cookie header format
         return cookie.toString()
     }
-    
+
     fun ObserveSourcesItem.calculateNextTimeForObserving() : Long {
         val item = this
         val now = System.currentTimeMillis()
