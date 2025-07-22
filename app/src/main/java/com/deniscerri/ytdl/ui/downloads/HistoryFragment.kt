@@ -781,39 +781,41 @@ class HistoryFragment : Fragment(), HistoryPaginatedAdapter.OnItemClickListener{
         }
 
     override fun onButtonClick(itemID: Long, isPresent: Boolean) {
-        lifecycleScope.launch {
-            val item = withContext(Dispatchers.IO){
-                historyViewModel.getByID(itemID)
-            }
+        if (isPresent) {
+            lifecycleScope.launch {
+                val item = withContext(Dispatchers.IO){
+                    historyViewModel.getByID(itemID)
+                }
 
-            UiUtil.showHistoryItemDetailsCard(
-                item, requireActivity(), isPresent, sharedPreferences,
-                removeItem = { it, deleteFile ->
-                    historyViewModel.delete(it, deleteFile)
-                },
-                redownloadItem = {
-                    val downloadItem = downloadViewModel.createDownloadItemFromHistory(it)
-                    runBlocking {
-                        if (!isPresent) {
-                            historyViewModel.delete(it, false)
+                UiUtil.showHistoryItemDetailsCard(
+                    item, requireActivity(), isPresent, sharedPreferences,
+                    removeItem = { it, deleteFile ->
+                        historyViewModel.delete(it, deleteFile)
+                    },
+                    redownloadItem = {
+                        val downloadItem = downloadViewModel.createDownloadItemFromHistory(it)
+                        runBlocking {
+                            if (!isPresent) {
+                                historyViewModel.delete(it, false)
+                            }
+                            downloadViewModel.queueDownloads(
+                                listOf(downloadItem),
+                                ignoreDuplicates = true
+                            )
                         }
-                        downloadViewModel.queueDownloads(
-                            listOf(downloadItem),
-                            ignoreDuplicates = true
+                        historyViewModel.delete(it, false)
+                    },
+                    redownloadShowDownloadCard = {
+                        findNavController().navigate(
+                            R.id.downloadBottomSheetDialog, bundleOf(
+                                Pair("result", downloadViewModel.createResultItemFromHistory(it)),
+                                Pair("type", it.type),
+                                Pair("ignore_duplicates", true),
+                            )
                         )
                     }
-                    historyViewModel.delete(it, false)
-                },
-                redownloadShowDownloadCard = {
-                    findNavController().navigate(
-                        R.id.downloadBottomSheetDialog, bundleOf(
-                            Pair("result", downloadViewModel.createResultItemFromHistory(it)),
-                            Pair("type", it.type),
-                            Pair("ignore_duplicates", true),
-                        )
-                    )
-                }
-            )
+                )
+            }
         }
     }
     companion object {

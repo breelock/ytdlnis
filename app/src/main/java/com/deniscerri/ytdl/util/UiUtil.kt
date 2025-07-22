@@ -576,7 +576,6 @@ object UiUtil {
         }
 
         // BUTTON ----------------------------------
-        val btn = bottomSheet.findViewById<FloatingActionButton>(R.id.download_button_type)
         val typeImageResource: Int =
             when (item.type) {
                 DownloadViewModel.Type.audio -> {
@@ -589,7 +588,6 @@ object UiUtil {
                     R.drawable.ic_terminal
                 }
             }
-        btn?.setImageResource(typeImageResource)
 
         val time = bottomSheet.findViewById<Chip>(R.id.time)
         val thumbnail = bottomSheet.findViewById<Chip>(R.id.thumbnail)
@@ -779,9 +777,6 @@ object UiUtil {
             }
         }
 
-        // BUTTON ----------------------------------
-        val btn = bottomSheet.findViewById<FloatingActionButton>(R.id.download_button_type)
-
         val typeImageResource: Int =
         if (item!!.type == DownloadViewModel.Type.audio) {
             if (isPresent) {
@@ -797,30 +792,6 @@ object UiUtil {
             }
         }else{
             R.drawable.ic_terminal
-        }
-        btn?.setImageResource(typeImageResource)
-
-        if (isPresent){
-            btn?.apply {
-                if (item.downloadPath.size > 1){
-                    viewTreeObserver.addOnGlobalLayoutListener(object :
-                        ViewTreeObserver.OnGlobalLayoutListener {
-                        @OptIn(ExperimentalBadgeUtils::class) override fun onGlobalLayout() {
-                            val badgeDrawable = BadgeDrawable.create(context)
-                            badgeDrawable.number = item.downloadPath.size
-                            //Important to change the position of the Badge
-                            badgeDrawable.horizontalOffset = 25
-                            badgeDrawable.verticalOffset = 25
-                            BadgeUtils.attachBadgeDrawable(badgeDrawable, btn, null)
-                            btn.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        }
-                    })
-                }
-
-                setOnClickListener {
-                    FileUtil.shareFileIntent(context, item.downloadPath)
-                }
-            }
         }
 
         val time = bottomSheet.findViewById<TextView>(R.id.time)

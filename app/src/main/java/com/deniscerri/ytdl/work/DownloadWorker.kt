@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -29,6 +30,7 @@ import com.deniscerri.ytdl.database.models.LogItem
 import com.deniscerri.ytdl.database.repository.DownloadRepository
 import com.deniscerri.ytdl.database.repository.LogRepository
 import com.deniscerri.ytdl.database.repository.ResultRepository
+import com.deniscerri.ytdl.util.Extensions.downloadPreview
 import com.deniscerri.ytdl.util.Extensions.getMediaDuration
 import com.deniscerri.ytdl.util.Extensions.toStringDuration
 import com.deniscerri.ytdl.util.FileUtil
@@ -337,6 +339,10 @@ class DownloadWorker(
                                     }
                                 }
                             }
+
+                            // Save preview
+                            try { downloadPreview(context, downloadItem.url, downloadItem.thumb) }
+                            catch (e: Exception) { Log.e("SavePreview", "error: " + e.message.toString()) }
 
                             withContext(Dispatchers.Main) {
                                 notificationUtil.cancelDownloadNotification(downloadItem.id.toInt())

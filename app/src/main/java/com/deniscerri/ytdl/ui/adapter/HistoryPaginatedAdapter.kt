@@ -97,7 +97,7 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
 
         // THUMBNAIL ----------------------------------
         val hideThumb = sharedPreferences.getStringSet("hide_thumbnails", emptySet())!!.contains("downloads")
-        uiHandler.post { thumbnail.loadLocalThumbnail(hideThumb, extractYoutubeVideoId(item.url), item.thumb) }
+        uiHandler.post { thumbnail.loadLocalThumbnail(hideThumb, item.url, item.thumb) }
 
         // TITLE  ----------------------------------
         val itemTitle = card.findViewById<TextView>(R.id.downloads_title)
@@ -137,6 +137,8 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
             thumbnail.alpha = 1f
             thumbnail.colorFilter = null
         }
+
+        btn.isClickable = filesPresent
         if (btn.hasOnClickListeners()) btn.setOnClickListener(null)
 
         if ((checkedItems.contains(item.id) && !inverted) || (!checkedItems.contains(item.id) && inverted)) {
@@ -162,28 +164,6 @@ class HistoryPaginatedAdapter(onItemClickListener: OnItemClickListener, activity
         btn.setOnClickListener {
             onItemClickListener.onButtonClick(item.id, finalFilePresent)
         }
-    }
-
-    private fun extractYoutubeVideoId(url: String): String {
-        val patterns = listOf(
-            "youtube\\.com/watch\\?v=([a-zA-Z0-9_-]{11})",
-            "youtu\\.be/([a-zA-Z0-9_-]{11})",
-            "youtube\\.com/embed/([a-zA-Z0-9_-]{11})"
-        )
-
-        for (pattern in patterns) {
-            val regex = Regex(pattern)
-            val match = regex.find(url)
-            if (match != null && match.groupValues.size > 1) {
-                return match.groupValues[1]
-            }
-        }
-
-        val uri = url.toUri()
-        val v = uri.getQueryParameter("v")
-        if (v != null && v.length == 11) return v
-
-        return ""
     }
 
 

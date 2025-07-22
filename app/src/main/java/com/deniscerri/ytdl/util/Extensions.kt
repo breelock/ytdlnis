@@ -2,6 +2,7 @@ package com.deniscerri.ytdl.util
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.res.Resources
@@ -17,7 +18,8 @@ import android.graphics.drawable.shapes.OvalShape
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
-import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.text.Spanned
 import android.util.DisplayMetrics
 import android.util.Log
@@ -34,17 +36,20 @@ import android.widget.TextView
 import androidx.annotation.Px
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.InstrumentationRegistry.getContext
 import com.deniscerri.ytdl.App
 import com.deniscerri.ytdl.R
 import com.deniscerri.ytdl.database.models.DownloadItem
 import com.deniscerri.ytdl.database.models.observeSources.ObserveSourcesItem
 import com.deniscerri.ytdl.database.repository.DownloadRepository
 import com.deniscerri.ytdl.database.repository.ObserveSourcesRepository.EveryCategory
+import com.deniscerri.ytdl.util.Extensions.loadLocalThumbnail
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
@@ -263,7 +268,7 @@ object Extensions {
             this.scaleX = value
             this.scaleY = value
         }
-        animator.interpolator = Extensions.CustomInterpolator()
+        animator.interpolator = CustomInterpolator()
         animator.setDuration(300)
         animator.start()
     }
@@ -324,48 +329,103 @@ object Extensions {
         }
     }
 
-    fun ImageView.loadLocalThumbnail(hideThumb: Boolean, videoId: String, imgUrl: String){
-        if(!hideThumb && videoId.isNotEmpty()){
-
+    fun downloadPreview(context: Context, videoLink: String, imgUrl: String) {
+        if (videoLink.isNotEmpty()) {
+            val videoId = extractYoutubeVideoId(videoLink)
             val thumbnailsFolder = FileUtil.getCachePath(context) + "/thumbnails"
             val thumbnailPath = "$thumbnailsFolder/$videoId.jpg"
 
-            if (!File(thumbnailsFolder).exists())
+            if (!File(thumbnailsFolder).exists()) {
                 File(thumbnailsFolder).mkdirs()
-
-            if (File(thumbnailPath).exists()) {
-                Picasso.get()
-                    .load(File(thumbnailPath))
-                    .resize(1280, 0)
-                    .onlyScaleDown()
-                    .into(this)
             }
-            else if (imgUrl.isNotEmpty()) {
+
+            val file = File(thumbnailPath)
+
+            if (!file.exists() && imgUrl.isNotEmpty()) {
                 isImageUrlAccessible(imgUrl) { canDownload ->
                     if (canDownload) {
-                        downloadImage(imgUrl, File(thumbnailPath))  { success, msg ->
-                            if (success) {
-                                Picasso.get()
-                                    .load(File(thumbnailPath))
-                                    .resize(1280, 0)
-                                    .onlyScaleDown()
-                                    .into(this)
-                            } else {
-                                Picasso.get()
-                                    .load(File(imgUrl))
-                                    .resize(1280, 0)
-                                    .onlyScaleDown()
-                                    .into(this)
+                        downloadImage(imgUrl, file)  { _, _ -> }
+                    }
+                }
+            }
+        }
+    }
+
+    fun ImageView.loadLocalThumbnail(hideThumb: Boolean, videoLink: String, imgUrl: String) {
+        if (!hideThumb && videoLink.isNotEmpty()) {
+            val videoId = extractYoutubeVideoId(videoLink)
+            val thumbnailsFolder = FileUtil.getCachePath(context) + "/thumbnails"
+            val thumbnailPath = "$thumbnailsFolder/$videoId.jpg"
+            val uiHandler = Handler(Looper.getMainLooper())
+
+            if (!File(thumbnailsFolder).exists()) {
+                File(thumbnailsFolder).mkdirs()
+            }
+
+            val file = File(thumbnailPath)
+
+            if (file.exists()) {
+                uiHandler.post {
+                    Picasso.get()
+                        .load(file)
+                        .resize(1280, 0)
+                        .onlyScaleDown()
+                        .into(this)
+                }
+            } else if (imgUrl.isNotEmpty()) {
+                isImageUrlAccessible(imgUrl) { canDownload ->
+                    if (canDownload) {
+                        downloadImage(imgUrl, file) { success, msg ->
+                            uiHandler.post {
+                                if (success) {
+                                    Picasso.get()
+                                        .load(file)
+                                        .resize(1280, 0)
+                                        .onlyScaleDown()
+                                        .into(this)
+                                } else {
+                                    Picasso.get()
+                                        .load(imgUrl)
+                                        .resize(1280, 0)
+                                        .onlyScaleDown()
+                                        .into(this)
+                                }
                             }
                         }
                     } else {
-                        Picasso.get().load(R.color.black).into(this)
+                        uiHandler.post {
+                            Picasso.get().load(R.color.black).into(this)
+                        }
                     }
                 }
             } else {
-                Picasso.get().load(R.color.black).into(this)
+                uiHandler.post {
+                    Picasso.get().load(R.color.black).into(this)
+                }
             }
         }
+    }
+
+    private fun extractYoutubeVideoId(url: String): String {
+        val patterns = listOf(
+            "youtube\\.com/watch\\?v=([a-zA-Z0-9_-]{11})",
+            "youtu\\.be/([a-zA-Z0-9_-]{11})",
+            "youtube\\.com/embed/([a-zA-Z0-9_-]{11})"
+        )
+
+        for (pattern in patterns) {
+            val regex = Regex(pattern)
+            val match = regex.find(url)
+            if (match != null && match.groupValues.size > 1) {
+                return match.groupValues[1]
+            }
+        }
+
+        val uri = url.toUri()
+        val v = uri.getQueryParameter("v")
+        if (v != null && v.length == 11) return v
+
+        return ""
     }
 
     private fun isImageUrlAccessible(urlStr: String, callback: (Boolean) -> Unit) {
