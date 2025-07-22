@@ -259,10 +259,7 @@ class HistoryFragment : Fragment(), HistoryPaginatedAdapter.OnItemClickListener{
                         val deleteFile = booleanArrayOf(false)
                         val deleteDialog = MaterialAlertDialogBuilder(fragmentContext!!)
                         deleteDialog.setTitle(getString(R.string.you_are_going_to_delete_multiple_items))
-                        deleteDialog.setMultiChoiceItems(
-                            arrayOf(getString(R.string.delete_files_too)),
-                            booleanArrayOf(false)
-                        ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
+                        deleteFile[0] = true
                         deleteDialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
                         deleteDialog.setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                             historyViewModel.deleteAll(deleteFile[0])
@@ -594,10 +591,7 @@ class HistoryFragment : Fragment(), HistoryPaginatedAdapter.OnItemClickListener{
                     val deleteFile = booleanArrayOf(false)
                     val deleteDialog = MaterialAlertDialogBuilder(fragmentContext!!)
                     deleteDialog.setTitle(getString(R.string.you_are_going_to_delete_multiple_items))
-                    deleteDialog.setMultiChoiceItems(
-                        arrayOf(getString(R.string.delete_files_too)),
-                        booleanArrayOf(false)
-                    ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
+                    deleteFile[0] = true
                     deleteDialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
                     deleteDialog.setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                         lifecycleScope.launch {

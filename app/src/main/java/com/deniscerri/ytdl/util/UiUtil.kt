@@ -1884,11 +1884,8 @@ object UiUtil {
         deleteDialog.setTitle(context.getString(R.string.you_are_going_to_delete) + " \"" + item.title + "\"!")
         val path = item.downloadPath
         if (path.any { File(it).exists() && it.isNotEmpty() }) {
-            deleteDialog.setMultiChoiceItems(
-                arrayOf(context.getString(R.string.delete_file_too)),
-                booleanArrayOf(false)
-            ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
-        }
+            deleteFile[0] = true
+        } else deleteFile[0] = false
         deleteDialog.setNegativeButton(context.getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
         deleteDialog.setPositiveButton(context.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
             delete(item, deleteFile[0])
