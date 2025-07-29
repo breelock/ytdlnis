@@ -256,10 +256,13 @@ class HistoryFragment : Fragment(), HistoryPaginatedAdapter.OnItemClickListener{
                     if(websiteList.isEmpty()){
                         Toast.makeText(context, R.string.history_is_empty, Toast.LENGTH_SHORT).show()
                     }else{
-                        val deleteFile = booleanArrayOf(false)
+                        val deleteFile = booleanArrayOf(true)
                         val deleteDialog = MaterialAlertDialogBuilder(fragmentContext!!)
                         deleteDialog.setTitle(getString(R.string.you_are_going_to_delete_multiple_items))
-                        deleteFile[0] = true
+                        deleteDialog.setMultiChoiceItems(
+                            arrayOf(getString(R.string.delete_files_too)),
+                            booleanArrayOf(true)
+                        ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
                         deleteDialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
                         deleteDialog.setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                             historyViewModel.deleteAll(deleteFile[0])
@@ -588,10 +591,13 @@ class HistoryFragment : Fragment(), HistoryPaginatedAdapter.OnItemClickListener{
                     true
                 }
                 R.id.delete_results -> {
-                    val deleteFile = booleanArrayOf(false)
+                    val deleteFile = booleanArrayOf(true)
                     val deleteDialog = MaterialAlertDialogBuilder(fragmentContext!!)
                     deleteDialog.setTitle(getString(R.string.you_are_going_to_delete_multiple_items))
-                    deleteFile[0] = true
+                    deleteDialog.setMultiChoiceItems(
+                        arrayOf(getString(R.string.delete_files_too)),
+                        booleanArrayOf(true)
+                    ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
                     deleteDialog.setNegativeButton(getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
                     deleteDialog.setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                         lifecycleScope.launch {

@@ -1879,12 +1879,15 @@ object UiUtil {
     }
 
     fun showRemoveHistoryItemDialog(item: HistoryItem, context: Activity, delete: (item: HistoryItem, deleteFile: Boolean) -> Unit){
-        val deleteFile = booleanArrayOf(false)
+        val deleteFile = booleanArrayOf(true)
         val deleteDialog = MaterialAlertDialogBuilder(context)
         deleteDialog.setTitle(context.getString(R.string.you_are_going_to_delete) + " \"" + item.title + "\"!")
         val path = item.downloadPath
         if (path.any { File(it).exists() && it.isNotEmpty() }) {
-            deleteFile[0] = true
+            deleteDialog.setMultiChoiceItems(
+                arrayOf(context.getString(R.string.delete_file_too)),
+                booleanArrayOf(true)
+            ) { _: DialogInterface?, _: Int, b: Boolean -> deleteFile[0] = b }
         } else deleteFile[0] = false
         deleteDialog.setNegativeButton(context.getString(R.string.cancel)) { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() }
         deleteDialog.setPositiveButton(context.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
